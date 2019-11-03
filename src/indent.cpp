@@ -2712,8 +2712,7 @@ void indent_text(void)
             log_rule_B("indent_off_after_return_new");
 
             if (  !options::indent_off_after_return_new()
-               || next == nullptr
-               || next->type != CT_NEW)
+               || next == nullptr)
             {
                frm.push(pc, __func__, __LINE__);
 
