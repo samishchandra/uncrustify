@@ -2579,8 +2579,7 @@ void indent_text(void)
             // Avoid indentation on return token if the next token is a new token
             // to properly indent object initializers returned by functions.
             if (  !options::indent_off_after_return_new()
-               || next == nullptr
-               || next->type != CT_NEW)
+               || next == nullptr)
             {
                frm.push(pc);
 
