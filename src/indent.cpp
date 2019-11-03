@@ -2550,7 +2550,7 @@ void indent_text(void)
             else if (  chunk_is_newline(next)
                     || !options::indent_align_assign())
             {
-               frm.top().indent = frm.prev().indent_tmp + indent_size;
+               frm.top().indent = frm.prev().indent_tmp;
                log_indent();
 
                if (chunk_is_token(pc, CT_ASSIGN) && chunk_is_newline(next))
