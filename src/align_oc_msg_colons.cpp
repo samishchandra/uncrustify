@@ -153,7 +153,25 @@ void align_oc_msg_colons(void)
    {
       if (chunk_is_token(pc, CT_SQUARE_OPEN) && pc->parent_type == CT_OC_MSG)
       {
-         align_oc_msg_colon(pc);
+         bool perform_align_oc_msg_colon = true;
+
+         for (chunk_t *temp_pc = pc; temp_pc != nullptr; temp_pc = chunk_get_next(temp_pc))
+         {
+            if (chunk_is_newline(temp_pc))
+            {
+               perform_align_oc_msg_colon = false;
+               break;
+            }
+            else if (chunk_is_token(temp_pc, CT_OC_MSG_FUNC) && temp_pc->level == (pc->level + 1))
+            {
+               break;
+            }
+         }
+
+         if (perform_align_oc_msg_colon)
+         {
+            align_oc_msg_colon(pc);
+         }
       }
    }
 } // align_oc_msg_colons
