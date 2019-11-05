@@ -1,6 +1,7 @@
 # "Default" build tree
 /build/
 /debug_build/
+/release_build/
 
 # Compiled Python code
 *.pyc
