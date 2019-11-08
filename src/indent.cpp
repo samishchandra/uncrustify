@@ -466,30 +466,22 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    }
    tmp = chunk_get_prev_nc(tmp);
 
-   if (tmp == nullptr || tmp->type != CT_OC_COLON)
-   {
-      return(nullptr);
-   }
-
-   if (from_colon)
+   if (tmp != nullptr && from_colon && tmp->type == CT_OC_COLON)
    {
       return(tmp);
    }
    tmp = chunk_get_prev_nc(tmp);
 
-   if (  tmp == nullptr
-      || (tmp->type != CT_OC_MSG_NAME && tmp->type != CT_OC_MSG_FUNC))
-   {
-      return(nullptr);
-   }
-
-   if (from_keyword)
+   if (tmp != nullptr
+      && from_keyword
+      && (tmp->type == CT_OC_MSG_NAME || tmp->type == CT_OC_MSG_FUNC))
    {
       return(tmp);
    }
+
    tmp = chunk_first_on_line(tmp);
 
-   if (chunk_is_token(tmp, CT_SQUARE_OPEN))
+   if (chunk_is_token(tmp, CT_SQUARE_OPEN) || chunk_is_token(tmp, CT_MEMBER))
    {
       return(tmp);
    }
@@ -1581,7 +1573,7 @@ void indent_text(void)
                         indent_from_brace   = false;
                         indent_from_colon   = false;
                         indent_from_caret   = false;
-                        indent_from_keyword = false;
+                        indent_from_keyword = true;
                      }
                   }
                   chunk_t *ref = oc_msg_block_indent(pc, indent_from_brace,
