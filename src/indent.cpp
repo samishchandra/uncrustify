@@ -495,6 +495,7 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
          return(tmp);
       }
    }
+
    tmp = chunk_first_on_line(tmp);
    return(tmp);
 } // oc_msg_block_indent
@@ -1645,7 +1646,7 @@ void indent_text(void)
                         indent_from_brace   = false;
                         indent_from_colon   = false;
                         indent_from_caret   = false;
-                        indent_from_keyword = false;
+                        indent_from_keyword = true;
                      }
                   }
                   chunk_t *ref = oc_msg_block_indent(pc, indent_from_brace,
