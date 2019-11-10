@@ -450,6 +450,11 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       tmp = chunk_get_prev_nc(chunk_skip_to_match_rev(tmp));
    }
 
+   if (chunk_is_token(tmp, CT_PTR_TYPE))
+   {
+      tmp = chunk_get_prev_nc(tmp);
+   }
+
    if (chunk_is_token(tmp, CT_TYPE))
    {
       tmp = chunk_get_prev_nc(tmp);
