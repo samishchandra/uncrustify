@@ -1,8 +1,8 @@
 [FIGActionBarButtonComponent
  options:{
    .colorForControlState = ^UIColor *(UIControlState controlState) {
-    return [item titleColorForState:controlState];
-  },
+     return [item titleColorForState:controlState];
+   },
  }
  session:session];
 
