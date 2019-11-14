@@ -60,3 +60,5 @@ xcuserdata
 cmake-build-*/
 debug/debug_info.txt
 debug/more_debug_info.txt
+debug/debug_info.txt
+debug/more_debug_info.txt
