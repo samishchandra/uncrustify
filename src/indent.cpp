@@ -486,7 +486,11 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
 
    tmp = chunk_first_on_line(tmp);
 
-   if (chunk_is_token(tmp, CT_SQUARE_OPEN) || chunk_is_token(tmp, CT_MEMBER) || chunk_is_token(tmp, CT_C99_MEMBER))
+   if (chunk_is_token(tmp, CT_SQUARE_OPEN)
+   || chunk_is_token(tmp, CT_MEMBER)
+   || chunk_is_token(tmp, CT_C99_MEMBER)
+   || chunk_is_token(tmp, CT_OC_MSG_NAME)
+   || chunk_is_token(tmp, CT_OC_MSG_FUNC))
    {
       return(tmp);
    }
