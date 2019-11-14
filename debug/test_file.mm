@@ -1,3 +1,10 @@
+(event
+  ?   [FDSTetraBottomSheetActionCellItemVariant
+        action:CKAction<> :: actionFromSenderlessBlock(^{
+  auto const strongSelf = weakSelf;
+})]
+  : nil);
+
 [FIGActionBarButtonComponent
    options:{
      .colorForControlState = ^UIColor *(UIControlState controlState) {
