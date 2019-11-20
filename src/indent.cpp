@@ -464,6 +464,12 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       tmp = chunk_get_prev_nc(tmp);
    }
 
+   // Store the caret position
+   chunk_t *caret_tmp = nullptr;
+   if (tmp != nullptr && tmp->type == CT_OC_BLOCK_CARET) {
+      caret_tmp = tmp;
+   }
+
    if (tmp == nullptr || tmp->type != CT_OC_BLOCK_CARET)
    {
       return(nullptr);

@@ -452,6 +452,11 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       return(pc);
    }
 
+   LOG_FMT(LSYS, "KSC: %s(%d): \
+   tmp->orig_line=%zu, tmp->orig_col=%zu, tmp->level=%zu, tmp->text=%s, tmp->type=%s\n",
+   __func__, __LINE__, tmp->orig_line, tmp->orig_col, tmp->level, tmp->text(), get_token_name(tmp->type));
+
+
    if (chunk_is_paren_close(tmp))
    {
       LOG_FMT(LSYS, "KSC: [DEBUGING] %s(%d)\n", __func__, __LINE__);
@@ -470,9 +475,11 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       tmp = chunk_get_prev_nc(tmp);
    }
 
-   LOG_FMT(LSYS, "KSC: %s(%d): \
-   tmp->orig_line=%zu, tmp->orig_col=%zu, tmp->level=%zu, tmp->text=%s, tmp->type=%s\n",
-   __func__, __LINE__, tmp->orig_line, tmp->orig_col, tmp->level, tmp->text(), get_token_name(tmp->type));
+   // Store the caret position
+   chunk_t *caret_tmp = nullptr;
+   if (tmp != nullptr && tmp->type == CT_OC_BLOCK_CARET) {
+      caret_tmp = tmp;
+   }
 
    if (tmp == nullptr || tmp->type != CT_OC_BLOCK_CARET)
    {
@@ -508,14 +515,15 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    || chunk_is_token(tmp, CT_MEMBER)
    || chunk_is_token(tmp, CT_C99_MEMBER)
    || chunk_is_token(tmp, CT_OC_MSG_NAME)
-   || chunk_is_token(tmp, CT_OC_MSG_FUNC))
+   || chunk_is_token(tmp, CT_OC_MSG_FUNC)
+   || chunk_is_token(tmp, CT_FUNC_CALL))
    {
       LOG_FMT(LSYS, "KSC: [DEBUGING] %s(%d)\n", __func__, __LINE__);
       return(tmp);
    }
 
    LOG_FMT(LSYS, "KSC: [DEBUGING] %s(%d)\n", __func__, __LINE__);
-   return(nullptr);
+   return(caret_tmp);
 } // oc_msg_block_indent
 
 
@@ -3673,4 +3681,3 @@ void indent_preproc(void)
               next ? next->column : -1);
    }
 } // indent_preproc
-
