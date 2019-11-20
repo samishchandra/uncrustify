@@ -460,6 +460,12 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       tmp = chunk_get_prev_nc(tmp);
    }
 
+   // Store the caret position
+   chunk_t *caret_tmp = nullptr;
+   if (tmp != nullptr && tmp->type == CT_OC_BLOCK_CARET) {
+      caret_tmp = tmp;
+   }
+
    if (tmp == nullptr || tmp->type != CT_OC_BLOCK_CARET)
    {
       return(nullptr);
@@ -490,11 +496,12 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    || chunk_is_token(tmp, CT_MEMBER)
    || chunk_is_token(tmp, CT_C99_MEMBER)
    || chunk_is_token(tmp, CT_OC_MSG_NAME)
-   || chunk_is_token(tmp, CT_OC_MSG_FUNC))
+   || chunk_is_token(tmp, CT_OC_MSG_FUNC)
+   || chunk_is_token(tmp, CT_FUNC_CALL))
    {
       return(tmp);
    }
-   return(nullptr);
+   return(caret_tmp);
 } // oc_msg_block_indent
 
 

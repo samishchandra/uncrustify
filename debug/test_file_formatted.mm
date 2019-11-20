@@ -1,3 +1,36 @@
+(event
+  ? [FDSTetraBottomSheetActionCellItemVariant
+     action:CKAction<>::actionFromSenderlessBlock(^{
+       auto const strongSelf = weakSelf;
+     })]
+  : nil);
+
+[[ButtonItem alloc]
+ action:^(NSObject<Protocol> *_Nonnull dialog) {
+   if (weakSelf) {
+     [dialog
+      dismissWithCompletion:^{
+        _deleteConversation(
+          strongSelf->_session,
+          ^{
+            if (auto const innerStrongSelf = weakSelf) {
+              [FBNavigationCoordinatorForViewController(innerStrongSelf)
+               dismissViewController:innerStrongSelf
+               completion:nil];
+            }
+          });
+      }];
+   }
+ }];
+
+FBProfileGemstoneBlockUserMutation (
+  ^(NSError *error) {
+    if (weakSelf) {
+      FBProfileGemstoneHandleWithError(error);
+    }
+  },
+  nil);
+
 [FIGActionBarButtonComponent
  options:{
    .colorForControlState = ^UIColor *(UIControlState controlState) {
