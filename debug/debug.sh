@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-UNCRUSTIFY=/Users/samishkolli/Desktop/src/uncrustify
-UNCRUSTIFY_DEBUG=/Users/samishkolli/Desktop/src/uncrustify/debug
+UNCRUSTIFY=/Users/samishkolli/src/uncrustify
+UNCRUSTIFY_DEBUG=/Users/samishkolli/src/uncrustify/debug
 
 pushd $UNCRUSTIFY/debug_build
 make
