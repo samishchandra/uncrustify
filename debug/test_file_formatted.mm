@@ -5,6 +5,22 @@
      })]
   : nil);
 
+CKComponentScope scope(self, scopeId, (id) ^{
+  return @(actionSheetButtonItem.isSelected);
+});
+
+const CKAction<> action =
+CKAction<>::actionFromBlock(^(CKComponent *component) {
+  [self->_bottomSheet coordinator:coordinator() completion:nil];
+});
+
+const CKComponentLayout bodyLayout =
+FBLayout(
+  layout,
+  ^BOOL (const CKComponentLayout &currentLayout) {
+    return currentLayout.component == self->_bodyVariants.back();
+  });
+
 [[ButtonItem alloc]
  action:^(NSObject<Protocol> *_Nonnull dialog) {
    if (weakSelf) {
