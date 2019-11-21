@@ -439,7 +439,6 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
                                     bool from_keyword)
 {
    LOG_FMT(LSYS, "\n\n");
-
    LOG_FMT(LSYS, "KSC: from_brace:%d, from_caret: %d, from_colon: %d, from_keyword: %d\n", from_brace, from_caret, from_colon, from_keyword);
 
 
@@ -451,11 +450,6 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       LOG_FMT(LSYS, "KSC: [DEBUGING] %s(%d)\n", __func__, __LINE__);
       return(pc);
    }
-
-   LOG_FMT(LSYS, "KSC: %s(%d): \
-   tmp->orig_line=%zu, tmp->orig_col=%zu, tmp->level=%zu, tmp->text=%s, tmp->type=%s\n",
-   __func__, __LINE__, tmp->orig_line, tmp->orig_col, tmp->level, tmp->text(), get_token_name(tmp->type));
-
 
    if (chunk_is_paren_close(tmp))
    {
@@ -509,15 +503,17 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       return(tmp);
    }
 
-   tmp = chunk_first_on_line(tmp);
+   LOG_FMT(LSYS, "KSC: %s(%d): \
+   tmp->orig_line=%zu, tmp->orig_col=%zu, tmp->level=%zu, tmp->text=%s, tmp->type=%s\n",
+   __func__, __LINE__, tmp->orig_line, tmp->orig_col, tmp->level, tmp->text(), get_token_name(tmp->type));
 
-   if (chunk_is_token(tmp, CT_SQUARE_OPEN)
-   || chunk_is_token(tmp, CT_MEMBER)
-   || chunk_is_token(tmp, CT_C99_MEMBER)
-   || chunk_is_token(tmp, CT_OC_MSG_NAME)
-   || chunk_is_token(tmp, CT_OC_MSG_FUNC)
-   || chunk_is_token(tmp, CT_FUNC_CALL))
-   {
+   tmp = chunk_first_on_line(pc);
+
+   LOG_FMT(LSYS, "KSC: %s(%d): \
+   tmp->orig_line=%zu, tmp->orig_col=%zu, tmp->level=%zu, tmp->text=%s, tmp->type=%s\n",
+   __func__, __LINE__, tmp->orig_line, tmp->orig_col, tmp->level, tmp->text(), get_token_name(tmp->type));
+
+   if (tmp != nullptr) {
       LOG_FMT(LSYS, "KSC: [DEBUGING] %s(%d)\n", __func__, __LINE__);
       return(tmp);
    }
