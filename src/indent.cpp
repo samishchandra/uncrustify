@@ -490,15 +490,9 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       return(tmp);
    }
 
-   tmp = chunk_first_on_line(tmp);
+   tmp = chunk_first_on_line(pc);
 
-   if (chunk_is_token(tmp, CT_SQUARE_OPEN)
-   || chunk_is_token(tmp, CT_MEMBER)
-   || chunk_is_token(tmp, CT_C99_MEMBER)
-   || chunk_is_token(tmp, CT_OC_MSG_NAME)
-   || chunk_is_token(tmp, CT_OC_MSG_FUNC)
-   || chunk_is_token(tmp, CT_FUNC_CALL))
-   {
+   if (tmp != nullptr) {
       return(tmp);
    }
    return(caret_tmp);
