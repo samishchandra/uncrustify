@@ -5,6 +5,25 @@
 })]
   : nil);
 
+void method() {
+  options.meta == nil
+    ? metaComponent
+    : ComponentBuilder()
+.spacing(4)
+.subComponent(
+  ComponentBuilder()
+.spacing(4));
+}
+
+
+
+void method() {
+options.meta == nil
+? metaComponent
+: ComponentBuilder()
+.spacing(4);
+}
+
 
 CKComponentScope scope(self, scopeId,      (id) ^ {
 return      @( actionSheetButtonItem.isSelected);
