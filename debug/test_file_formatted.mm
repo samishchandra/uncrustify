@@ -1,3 +1,95 @@
+flag
+? isChild
+  ? TypeBack
+  : TypeCancel
+: nil;
+
+flag
+? [Component
+   component:(isChildActionSheet ? TypeBack : TypeCancel)]
+: nil;
+
+[[FIGBottomSheetItem alloc]
+ iconName:selected
+ ? g.re
+   .at
+ : g
+   .re
+   .at
+ builder:nil
+ handler:^{
+ }
+]
+
+[[FIGBottomSheetItem alloc]
+iconName: selected ? iconName : g
+   .re
+   .at
+ builder: nil
+ handler:^{
+ }
+]
+
+accessoryType
+? Config1{}
+: flag == false
+  ? Config2{}
+    .build()
+  : flag == true
+    ? Config3{}
+      .build()
+    : Config4{}
+      .build();
+
+options.meta == nil
+? metaComponent
+: CBuilder()
+  .spacing(4)
+  .subComponent(
+    CBuilder()
+    .build());
+
+options.meta == nil
+? CBuilder()
+  .spacing(4)
+  .subComponent(
+    CBuilder()
+    .build()
+  )
+: Builder
+  .spacing;
+
+options == nil ? CBuilder()
+  .spacing(6)
+: Builder
+  .spacing;
+
+options == nil ? CBuilder()
+  .spacing(6) : Builder
+  .spacing;
+
+CBuilder()
+.subComponent(
+  CBuilder()
+  .spacing(4));
+
+flag
+? Builder
+  .spacing;
+: Builder
+  .spacing;
+
+func something()
+{
+  if (flag) {
+    x == flag
+    ? Builder
+      .spacing
+    : Builder
+      .spacing;
+  }
+}
+
 (event
   ? [FDSTetraBottomSheetActionCellItemVariant
      action:CKAction<>::actionFromSenderlessBlock(^{
@@ -10,18 +102,10 @@ void method()
   options.meta == nil
   ? metaComponent
   : ComponentBuilder()
-  .spacing(4)
-  .subComponent(
-    ComponentBuilder()
-    .spacing(4));
-}
-
-void method()
-{
-  options.meta == nil
-  ? metaComponent
-  : ComponentBuilder()
-  .spacing(4);
+    .spacing(4)
+    .subComponent(
+      ComponentBuilder()
+      .spacing(4));
 }
 
 CKComponentScope scope(self, scopeId, (id) ^{
