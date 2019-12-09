@@ -1255,6 +1255,22 @@ void indent_text(void)
                }
                frm.paren_count--;
             }
+
+            // Pop Colon stack in ternary operator
+            if (  frm.top().type == CT_COND_COLON
+               && (  chunk_is_semicolon(pc)
+                  || chunk_is_token(pc, CT_COND_COLON)
+                  || chunk_is_token(pc, CT_COMMA)
+                  || chunk_is_token(pc, CT_OC_MSG_NAME)
+                  || chunk_is_token(pc, CT_BRACE_CLOSE)
+                  || chunk_is_token(pc, CT_PAREN_CLOSE)
+                  || chunk_is_token(pc, CT_SPAREN_CLOSE))
+               && pc->parent_type != CT_CPP_LAMBDA)
+            {
+               LOG_FMT(LINDLINE, "%s(%d): pc->orig_line is %zu, orig_col is %zu, text() is '%s', type is %s\n",
+                       __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
+               frm.pop(__func__, __LINE__);
+            }
          }
       } while (old_frm_size > frm.size());
 
@@ -2825,6 +2841,50 @@ void indent_text(void)
          {
             indent_column_set(frm.top().indent + 4);
          }
+      }
+      else if (  chunk_is_token(pc, CT_QUESTION)
+              || chunk_is_token(pc, CT_COND_COLON))
+      {
+         if (chunk_is_token(pc, CT_COND_COLON))
+         {
+            while (frm.top().type == CT_MEMBER)
+            {
+               frm.pop(__func__, __LINE__);
+            }
+
+            if (frm.top().type == CT_QUESTION)
+            {
+               chunk_t *question_pc = frm.top().pc;
+               frm.pop(__func__, __LINE__);
+
+               if (chunk_is_newline(chunk_get_prev_nc(pc)))
+               {
+                  reindent_line(pc, question_pc->column);
+               }
+               indent_column_set(frm.top().indent);
+            }
+         }
+         frm.push(pc, __func__, __LINE__);
+
+         frm.top().indent     = frm.prev().indent + indent_size;
+         frm.top().indent_tab = frm.top().indent;
+
+         log_indent();
+
+         frm.top().indent_tmp = frm.top().indent;
+         log_indent_tmp();
+      }
+      else if (  (chunk_is_token(frm.top().pc, CT_QUESTION) || chunk_is_token(frm.top().pc, CT_COND_COLON))
+              && chunk_is_token(pc, CT_MEMBER)
+              && chunk_is_newline(chunk_get_prev_nc(pc))
+              && language_is_set(LANG_CS | LANG_CPP))
+      {
+         int prev_top_indent = frm.top().indent;
+         frm.push(pc, __func__, __LINE__);
+         frm.top().indent = prev_top_indent;
+         log_indent();
+         frm.top().indent_tmp = frm.top().indent;
+         log_indent_tmp();
       }
       else if (  chunk_is_token(pc, CT_LAMBDA)
               && (language_is_set(LANG_CS | LANG_JAVA))
