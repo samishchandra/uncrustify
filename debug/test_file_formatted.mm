@@ -87,6 +87,10 @@ FBProfileGemstoneBlockUserMutation (
    }
  }];
 
+[bottomSheet dismiss:^{
+  variant.action.send(component);
+}];
+
 MainComponent(
   .builder = ^{
     return

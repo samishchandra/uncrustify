@@ -88,6 +88,9 @@ newWithView:{
    }
  }];
 
+[bottomSheet  dismiss:^{
+              variant.action.send(component);
+      }];
 
 MainComponent(
   .builder = ^{

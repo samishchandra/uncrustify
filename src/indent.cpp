@@ -202,6 +202,11 @@ void ksc_log_blank_lines()
    LOG_FMT(LSYS, "\n\n");
 }
 
+void ksc_log_debug(const char *func, const uint32_t line)
+{
+   LOG_FMT(LSYS, "KSC: [DEBUG] %s(%d)\n", func, line);
+}
+
 void ksc_log(chunk_t *pc, const char *func, const uint32_t line)
 {
    LOG_FMT(LSYS, "KSC: %s(%d): \n\
@@ -1673,7 +1678,7 @@ void indent_text(void)
                         indent_from_brace   = false;
                         indent_from_colon   = false;
                         indent_from_caret   = false;
-                        indent_from_keyword = true;
+                        indent_from_keyword = false;
                      }
                   }
                   chunk_t *ref = oc_msg_block_indent(pc, indent_from_brace,
