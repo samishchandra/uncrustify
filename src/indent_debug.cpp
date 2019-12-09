@@ -23,7 +23,6 @@
 #include "unc_ctype.h"
 #include "uncrustify.h"
 #include "uncrustify_types.h"
-#include "unc_tools_debug.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -197,27 +196,31 @@ static bool single_line_comment_indent_rule_applies(chunk_t *start);
  */
 static bool is_end_of_assignment(chunk_t *pc, const ParseFrame &frm);
 
-void ksc_log_blank_lines()
+void _ksc_log_nl()
 {
    LOG_FMT(LSYS, "\n\n");
 }
 
-void ksc_log_debug(const char *func, const uint32_t line)
+void _ksc_log_debug(const char *func, const uint32_t line)
 {
    LOG_FMT(LSYS, "KSC: [DEBUG] %s(%d)\n", func, line);
 }
 
-void ksc_log(chunk_t *pc, const char *func, const uint32_t line)
+void _ksc_log(chunk_t *pc, const char *func, const uint32_t line)
 {
    LOG_FMT(LSYS, "KSC: %s(%d): \n\
-   pc->text=%s, pc->type=%s, \n\
+   pc->text=%s, pc->type=%s, pc->len=%zu \n\
    pc->orig_line=%zu, pc->orig_col=%zu, pc->level=%zu, \n\
    pc->column=%zu, pc->column_indent=%zu\n",
       func, line,
-      pc->text(), get_token_name(pc->type),
+      pc->text(), get_token_name(pc->type), pc->len(),
       pc->orig_line, pc->orig_col, pc->level,
       pc->column, pc->column_indent);
 }
+
+#define ksc_log_nl() _ksc_log_nl()
+#define ksc_log_debug() _ksc_log_debug(__func__, __LINE__)
+#define ksc_log(pc) _ksc_log(pc, __func__, __LINE__)
 
 void indent_to_column(chunk_t *pc, size_t column)
 {
@@ -462,30 +465,23 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    LOG_FUNC_ENTRY();
    chunk_t *tmp = chunk_get_prev_nc(pc);
 
-   ksc_log_blank_lines();
-   LOG_FMT(LSYS, "KSC: from_brace:%d, from_caret: %d, from_colon: %d, from_keyword: %d\n", from_brace, from_caret, from_colon, from_keyword);
-
    if (from_brace)
    {
-      ksc_log_debug(__func__, __LINE__);
       return(pc);
    }
 
    if (chunk_is_paren_close(tmp))
    {
-      ksc_log_debug(__func__, __LINE__);
       tmp = chunk_get_prev_nc(chunk_skip_to_match_rev(tmp));
    }
 
    if (chunk_is_token(tmp, CT_PTR_TYPE))
    {
-      ksc_log_debug(__func__, __LINE__);
       tmp = chunk_get_prev_nc(tmp);
    }
 
    if (chunk_is_token(tmp, CT_TYPE))
    {
-      ksc_log_debug(__func__, __LINE__);
       tmp = chunk_get_prev_nc(tmp);
    }
 
@@ -497,20 +493,17 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
 
    if (tmp == nullptr || tmp->type != CT_OC_BLOCK_CARET)
    {
-      ksc_log_debug(__func__, __LINE__);
       return(nullptr);
    }
 
    if (from_caret)
    {
-      ksc_log_debug(__func__, __LINE__);
       return(tmp);
    }
    tmp = chunk_get_prev_nc(tmp);
 
    if (tmp != nullptr && from_colon && tmp->type == CT_OC_COLON)
    {
-      ksc_log_debug(__func__, __LINE__);
       return(tmp);
    }
    tmp = chunk_get_prev_nc(tmp);
@@ -519,19 +512,14 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
       && from_keyword
       && (tmp->type == CT_OC_MSG_NAME || tmp->type == CT_OC_MSG_FUNC))
    {
-      ksc_log(pc, __func__, __LINE__);
-      ksc_log_debug(__func__, __LINE__);
       return(tmp);
    }
 
    tmp = chunk_first_on_line(pc);
 
    if (tmp != nullptr) {
-      ksc_log_debug(__func__, __LINE__);
       return(tmp);
    }
-
-   ksc_log_debug(__func__, __LINE__);
    return(caret_tmp);
 } // oc_msg_block_indent
 
@@ -607,6 +595,8 @@ static void quick_indent_again(void)
 
 void indent_text(void)
 {
+   ksc_log_nl();
+
    LOG_FUNC_ENTRY();
    bool         did_newline   = true;
    size_t       vardefcol     = 0;
@@ -2705,6 +2695,53 @@ void indent_text(void)
          frm.top().indent_tmp = frm.top().indent;
          log_indent_tmp();
       }
+      else if (chunk_is_token(pc, CT_QUESTION)
+               || chunk_is_token(pc, CT_COND_COLON))
+      {
+         ksc_log(pc);
+
+         if (chunk_is_token(pc, CT_COND_COLON))
+         {
+            chunk_t *tmp = chunk_get_prev_type(pc, CT_QUESTION, -1);
+
+            if (tmp != nullptr)
+            {
+               while (frm.poped().pc != tmp)
+               {
+                  frm.pop();
+               }
+
+               reindent_line(pc, tmp->column);
+
+               ksc_log(frm.poped().pc);
+               LOG_FMT(LSYS, "KSC: [DEBUG] %s(%d) frm.poped().indent:%zu\n", __func__, __LINE__, frm.poped().indent);
+               indent_column_set(frm.top().indent);
+            }
+         }
+
+         frm.push(pc);
+
+         frm.top().indent = frm.prev().indent + indent_size; // pc->column + pc->len() + 1;
+         frm.top().indent_tab = frm.top().indent;
+
+         log_indent();
+
+         frm.top().indent_tmp = frm.top().indent;
+         log_indent_tmp();
+      }
+      else if ((chunk_is_token(frm.top().pc, CT_QUESTION) || chunk_is_token(frm.top().pc, CT_COND_COLON))
+                && chunk_is_token(pc, CT_MEMBER)
+                && language_is_set(LANG_CS | LANG_CPP))
+      {
+         ksc_log(pc);
+
+         int prev_indent = frm.top().indent;
+         frm.push(pc);
+         frm.top().indent = prev_indent; // frm.prev().indent;
+         log_indent();
+         frm.top().indent_tmp = frm.top().indent;
+         log_indent_tmp();
+      }
       else
       {
          // anything else?
@@ -3431,7 +3468,9 @@ static bool is_end_of_assignment(chunk_t *pc, const ParseFrame &frm)
 {
    return(  (  frm.top().type == CT_ASSIGN_NL
             || frm.top().type == CT_MEMBER
-            || frm.top().type == CT_ASSIGN)
+            || frm.top().type == CT_ASSIGN
+            || frm.top().type == CT_QUESTION
+            || frm.top().type == CT_COND_COLON)
          && (  chunk_is_semicolon(pc)
             || chunk_is_token(pc, CT_COMMA)
             || chunk_is_token(pc, CT_BRACE_OPEN)
