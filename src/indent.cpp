@@ -506,34 +506,25 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
    }
    tmp = chunk_get_prev_nc(tmp);
 
-   if (from_colon)
+   if (tmp != nullptr && from_colon && tmp->type == CT_OC_COLON)
    {
-      if (tmp == nullptr || tmp->type != CT_OC_COLON)
-      {
-         return(nullptr);
-      }
-      else
-      {
-         return(tmp);
-      }
+      return(tmp);
    }
    tmp = chunk_get_prev_nc(tmp);
 
-   if (from_keyword)
+   if (tmp != nullptr
+      && from_keyword
+      && (tmp->type == CT_OC_MSG_NAME || tmp->type == CT_OC_MSG_FUNC))
    {
-      if (  tmp == nullptr
-         || (tmp->type != CT_OC_MSG_NAME && tmp->type != CT_OC_MSG_FUNC))
-      {
-         return(nullptr);
-      }
-      else
-      {
-         return(tmp);
-      }
+      return(tmp);
    }
 
-   tmp = chunk_first_on_line(tmp);
-   return(tmp);
+   tmp = chunk_first_on_line(pc);
+
+   if (tmp != nullptr) {
+      return(tmp);
+   }
+   return(caret_tmp);
 } // oc_msg_block_indent
 
 
@@ -2886,7 +2877,7 @@ void indent_text(void)
             }
             else
             {
-               LOG_FMT(LSYS, "KSC: [ELSE] %s(%d)\n", __func__, __LINE__);
+               // LOG_FMT(LSYS, "KSC: [ELSE] %s(%d)\n", __func__, __LINE__);
             }
          }
 
