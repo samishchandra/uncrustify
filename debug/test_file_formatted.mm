@@ -185,7 +185,7 @@ MainComponent(
 );
 
 [MainComponent
- builder:^{
+ builder:^FDS::ActionCell::Item {
    return
    value;
  }];
@@ -199,6 +199,19 @@ MainComponent(
  withBlock:^(Component *c) {
    NSLog(@"Something");
  }];
+
+CK::map(
+  _items,
+  ^FDS::ActionCell::Item (Item item) {
+    return x;
+  }
+);
+
+Mutation (^(NSError *error) {
+  if (weakSelf) {
+    Error(error);
+  }
+});
 
 return
 _isEnabled
