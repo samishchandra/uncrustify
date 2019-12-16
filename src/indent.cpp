@@ -1631,7 +1631,7 @@ void indent_text(void)
                         indent_from_brace   = false;
                         indent_from_colon   = false;
                         indent_from_caret   = false;
-                        indent_from_keyword = true;
+                        indent_from_keyword = false;
                      }
                   }
                   chunk_t *ref = oc_msg_block_indent(pc, indent_from_brace,
