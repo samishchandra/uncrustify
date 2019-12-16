@@ -491,13 +491,20 @@ static chunk_t *oc_msg_block_indent(chunk_t *pc, bool from_brace,
 
    // Store the caret position
    chunk_t *caret_tmp = nullptr;
-   if (tmp != nullptr && tmp->type == CT_OC_BLOCK_CARET) {
+   if (tmp != nullptr && tmp->type == CT_OC_BLOCK_CARET)
+   {
       caret_tmp = tmp;
    }
+   else
+   {
+      caret_tmp = chunk_get_prev_type(tmp, CT_OC_BLOCK_CARET, -1, scope_e::ALL);
+      tmp = caret_tmp;
+   }
 
+   // If we still cannot find caret then return
    if (tmp == nullptr || tmp->type != CT_OC_BLOCK_CARET)
    {
-      return(nullptr);
+      return(tmp);
    }
 
    if (from_caret)
