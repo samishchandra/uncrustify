@@ -1,5 +1,5 @@
 flag
-       ? isChild 
+       ? isChild
     ? TypeBack
 : TypeCancel
        : nil;
@@ -10,9 +10,9 @@ flag
        : nil;
 
 [[FIGBottomSheetItem alloc]
- iconName:selected 
+ iconName:selected
  ? g.re
-          .at 
+          .at
           : g
           .re
           .at
@@ -187,7 +187,7 @@ param2,
 
 
     [ MainComponent
-builder:^{
+builder:^FDS::ActionCell::Item{
     return
   value;
           }  ];
@@ -201,6 +201,19 @@ builder:^{
  withBlock:^(Component *c) {
                              NSLog(@"Something");
                            }];
+
+CK::map(
+  _items,
+      ^ FDS::ActionCell::Item (Item item)  {
+     return x;
+          }
+);
+
+Mutation (^( NSError *error) {
+        if (weakSelf) {
+      Error(error);
+   }
+ });
 
 return
 _isEnabled
