@@ -197,24 +197,24 @@ static bool single_line_comment_indent_rule_applies(chunk_t *start);
  */
 static bool is_end_of_assignment(chunk_t *pc, const ParseFrame &frm);
 
-void _ksc_log_nl()
+static void _ksc_log_nl()
 {
    LOG_FMT(LSYS, "\n\n");
 }
 
-void _ksc_log_debug(const char *func, const uint32_t line)
+static void _ksc_log_debug(const char *func, const uint32_t line)
 {
    LOG_FMT(LSYS, "KSC: [DEBUG] %s(%d)\n", func, line);
 }
 
-void _ksc_log(chunk_t *pc, const char *func, const uint32_t line)
+static void _ksc_log(chunk_t *pc, const char *func, const uint32_t line)
 {
    LOG_FMT(LSYS, "KSC: %s(%d): \n\
-   pc->text=%s, pc->type=%s, pc->len=%zu \n\
+   pc->text=%s, pc->type=%s, pc->parent_type=%s, pc->len=%zu \n\
    pc->orig_line=%zu, pc->orig_col=%zu, pc->level=%zu, \n\
    pc->column=%zu, pc->column_indent=%zu\n",
       func, line,
-      pc->text(), get_token_name(pc->type), pc->len(),
+      pc->text(), get_token_name(pc->type), get_token_name(pc->parent_type), pc->len(),
       pc->orig_line, pc->orig_col, pc->level,
       pc->column, pc->column_indent);
 }
