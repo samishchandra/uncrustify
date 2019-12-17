@@ -2672,12 +2672,24 @@ static void newline_func_multi_line(chunk_t *start)
    else if (  get_chunk_parent_type(start) == CT_FUNC_CALL
            || get_chunk_parent_type(start) == CT_FUNC_CALL_USER)
    {
-      log_rule_B("nl_func_call_start_multi_line");
-      add_start = options::nl_func_call_start_multi_line();
+      chunk_t *pc = chunk_get_next_ncnl(start);
+
+      // Dont add newline in following cases
+      if (pc->parent_type == CT_OC_BLOCK_EXPR
+          || pc->parent_type == CT_CPP_LAMBDA
+          || pc->type == CT_BRACE_OPEN) {
+         add_start = false;
+      }
+      else
+      {
+         log_rule_B("nl_func_call_start_multi_line");
+         add_start = options::nl_func_call_start_multi_line();
+      }
+
       log_rule_B("nl_func_call_args_multi_line");
-      add_args = options::nl_func_call_args_multi_line();
+      add_args  = options::nl_func_call_args_multi_line();
       log_rule_B("nl_func_call_end_multi_line");
-      add_end = options::nl_func_call_end_multi_line();
+      add_end   = add_start;
    }
    else
    {
@@ -2695,7 +2707,6 @@ static void newline_func_multi_line(chunk_t *start)
    {
       return;
    }
-   chunk_t *pc = chunk_get_next_ncnl(start);
 
    while (pc != nullptr && pc->level > start->level)
    {
