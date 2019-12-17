@@ -1,3 +1,75 @@
+// newlines for function calls
+options({
+  .cornerRadius = CGFLOAT_MAX,
+});
+
+mapToPtr([&](const LeftAddOn::Props &addOnProps) {
+  FSTheme *const theme = CK::getTheme();
+});
+
+mapToPtr(
+  x,
+  [&](const Props &addOnProps) {
+    FSTheme *const theme = CK::getTheme();
+  }
+);
+
+mapToPtr([&](const Props &addOnProps) {
+  FSTheme *const theme = CK::getTheme();
+});
+
+methodCall(
+  x,
+  ^FS::ActionCell::Item (Item item) {
+    variant.action.send(component);
+  }
+);
+
+methodCall(^FS::ActionCell::Item (Item item) {
+  variant.action.send(component);
+});
+
+methodCall(^FS::ActionCell::Item (Item item) {
+  variant.action.send(component);
+});
+
+methodCall(^{
+  variant.action.send(component);
+});
+
+methodCall (^{
+  variant.action.send(component);
+}, x);
+
+methodCall(
+  x,
+  ^id (Component *c) {
+    NSLog(@"Something");
+  }
+);
+
+methodCall(  ^id (Component *c) {
+  NSLog(@"Something");
+});
+
+methodCall(  ^(Component *c) {
+  NSLog(@"Something");
+});
+
+methodCall (^(Component *c) {
+  NSLog(@"Something");
+}, y);
+
+methodCall(
+  x,
+  ^(Component *c) {
+    NSLog(@"Something");
+  },
+  y
+);
+
+// ternary operator
+
 flag
 ? isChild
   ? TypeBack
@@ -9,7 +81,7 @@ flag
    component:(isChildActionSheet ? TypeBack : TypeCancel)]
 : nil;
 
-[[FIGBottomSheetItem alloc]
+[[BottomSheetItem alloc]
  iconName:selected
  ? g.re
    .at
@@ -21,7 +93,7 @@ flag
  }
 ]
 
-[[FIGBottomSheetItem alloc]
+[[BottomSheetItem alloc]
 iconName: selected ? iconName : g
    .re
    .at
@@ -47,7 +119,8 @@ options.meta == nil
   .spacing(4)
   .subComponent(
     CBuilder()
-    .build());
+    .build()
+  );
 
 options.meta == nil
 ? CBuilder()
@@ -71,7 +144,8 @@ options == nil ? CBuilder()
 CBuilder()
 .subComponent(
   CBuilder()
-  .spacing(4));
+  .spacing(4)
+);
 
 flag
 ? Builder
@@ -91,7 +165,7 @@ func something()
 }
 
 (event
-  ? [FDSTetraBottomSheetActionCellItemVariant
+  ? [FSTetraBottomSheetActionCellItemVariant
      action:CKAction<>::actionFromSenderlessBlock(^{
        auto const strongSelf = weakSelf;
      })]
@@ -105,8 +179,11 @@ void method()
     .spacing(4)
     .subComponent(
       ComponentBuilder()
-      .spacing(4));
+      .spacing(4)
+    );
 }
+
+// block indentation
 
 CKComponentScope scope(self, scopeId, (id) ^{
   return @(actionSheetButtonItem.isSelected);
@@ -118,11 +195,12 @@ CKAction<>::actionFromBlock(^(CKComponent *component) {
 });
 
 const CKComponentLayout bodyLayout =
-FBLayout(
+Layout(
   layout,
   ^BOOL (const CKComponentLayout &currentLayout) {
     return currentLayout.component == self->_bodyVariants.back();
-  });
+  }
+);
 
 [[ButtonItem alloc]
  action:^(NSObject<Protocol> *_Nonnull dialog) {
@@ -133,24 +211,25 @@ FBLayout(
           strongSelf->_session,
           ^{
             if (auto const innerStrongSelf = weakSelf) {
-              [FBNavigationCoordinatorForViewController(innerStrongSelf)
+              [NavigationCoordinatorForViewController(innerStrongSelf)
                dismissViewController:innerStrongSelf
                completion:nil];
             }
-          });
+          }
+        );
       }];
    }
  }];
 
-FBProfileGemstoneBlockUserMutation (
+ProfileBlockUserMutation (
   ^(NSError *error) {
     if (weakSelf) {
-      FBProfileGemstoneHandleWithError(error);
+      ProfileHandleWithError(error);
     }
   },
   nil);
 
-[FIGActionBarButtonComponent
+[ActionBarButtonComponent
  options:{
    .colorForControlState = ^UIColor *(UIControlState controlState) {
      return [item titleColorForState:controlState];
@@ -163,7 +242,7 @@ FBProfileGemstoneBlockUserMutation (
    {
      .accessibilityLabel = ^{
        return
-       [[[[FBAccessibilityLabelBuilder builder]
+       [[[[AccessibilityLabelBuilder builder]
           appendPhrase:bottomSheetItem.title]
          appendPhrase:bottomSheetItem.body]
         getResult];
@@ -185,7 +264,7 @@ MainComponent(
 );
 
 [MainComponent
- builder:^FDS::ActionCell::Item {
+ builder:^FS::ActionCell::Item {
    return
    value;
  }];
@@ -202,7 +281,7 @@ MainComponent(
 
 CK::map(
   _items,
-  ^FDS::ActionCell::Item (Item item) {
+  ^FS::ActionCell::Item (Item item) {
     return x;
   }
 );
@@ -215,8 +294,8 @@ Mutation (^(NSError *error) {
 
 return
 _isEnabled
-&& [[FBMobileConfigStartupConfigs getInstance] getBool:@"YES"
-                                           withDefault:NO];
+&& [[MobileConfigStartupConfigs getInstance] getBool:@"YES"
+                                         withDefault:NO];
 
 [self dismissWithReason:DismissReason::Auto
                animated:TRUE];
@@ -227,7 +306,7 @@ _isEnabled
  animated:TRUE];
 
 [_hostingView
- updateModel:[FDSTooltipViewControllerPropsWrapper
+ updateModel:[FSTooltipViewControllerPropsWrapper
               newWithProps:props
               theme:_tooltip.props.theme]];
 
@@ -245,7 +324,7 @@ namespace SomeNamespace {
       BuildComponent(^(CKComponent *) {
         [[[ComponentBuilder alloc]
           initWithHeadlineTitle:[NSString stringWithFormat:@"ContextRow button tapped"]
-          withButtonTitle:FBLocalizedOKButtonTitle()
+          withButtonTitle:OKButtonTitle()
           withBodyTitle:nil] build];
       });
     }
