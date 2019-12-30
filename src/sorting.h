@@ -11,7 +11,7 @@
 #include "uncrustify_types.h"
 #include <stdlib.h>
 
-#define MAX_NUMBER_TO_SORT    256
+#define MAX_NUMBER_TO_SORT     1024
 
 
 /**
