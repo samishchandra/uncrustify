@@ -1,5 +1,9 @@
 # "Default" build tree
-/build/
+build/
+debug_build/
+release_build/
+debug/debug_info.txt
+debug/more_debug_info.txt
 
 # Compiled Python code
 *.pyc
@@ -56,3 +60,4 @@ xcuserdata
 # CLion
 .idea/
 cmake-build-*/
+.vscode/
