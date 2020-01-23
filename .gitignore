@@ -1,5 +1,9 @@
 # "Default" build tree
-/build/
+build/
+debug_build/
+release_build/
+debug/debug_info.txt
+debug/more_debug_info.txt
 
 # PyCharm help directory
 venv/
@@ -59,3 +63,11 @@ xcuserdata
 # CLion
 .idea/
 cmake-build-*/
+.vscode/
+
+# Xcode helper files
+*.xccommands
+
+# Git
+.git
+.gitattributes
