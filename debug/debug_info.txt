@@ -1,4 +1,4 @@
-# Uncrustify_d-1.80.2
+# Uncrustify_d-0.70.1-113-13df5bbd
 input_tab_size                  = 2
 output_tab_size                 = 2
 disable_processing_cmt          = "UNCRUSTIFY_FORMAT_OFF"
@@ -79,6 +79,7 @@ sp_catch_brace                  = force
 sp_finally_brace                = force
 sp_try_brace                    = force
 sp_getset_brace                 = force
+sp_word_brace_ns                = force
 sp_before_dc                    = remove
 sp_after_dc                     = remove
 sp_after_oc_scope               = force
@@ -172,6 +173,7 @@ nl_func_decl_start_single       = remove
 nl_func_def_start_single        = remove
 nl_func_decl_end_single         = remove
 nl_func_decl_empty              = remove
+nl_func_def_empty               = remove
 nl_func_call_start_multi_line   = true
 nl_func_call_args_multi_line    = true
 nl_func_call_end_multi_line     = true
@@ -198,12 +200,14 @@ pos_constr_colon                = trail_break
 align_oc_msg_colon_span         = 1
 align_oc_decl_colon             = true
 align_oc_msg_colon_xcode_like   = true
+cmt_width                       = 100
+cmt_reflow_mode                 = 2
 cmt_convert_tab_to_spaces       = true
-cmt_indent_multi                = false
+cmt_c_group                     = true
 cmt_c_nl_start                  = true
 cmt_cpp_nl_start                = true
 cmt_cpp_nl_end                  = true
-cmt_sp_after_star_cont          = 1
+cmt_star_cont                   = true
 mod_full_brace_for              = force
 mod_full_brace_if               = force
 mod_full_brace_nl_block_rem_mlcond = true
@@ -223,7 +227,7 @@ mod_sort_oc_property_nullability_weight = 6
 pp_indent                       = force
 pp_indent_at_level              = true
 pp_indent_if                    = -2
-# option(s) with 'not default' value: 224
+# option(s) with 'not default' value: 228
 #
 # -=====-
 # Line                Tag              Parent          Columns Br/Lvl/pp     Flag   Nl  Text
