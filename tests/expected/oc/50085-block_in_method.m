@@ -23,20 +23,20 @@ void Events2(NSString *    identifier, void (^)());
 
 - (void)each:(void (^)(id object))block {
 	[self enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-	     block(obj);
-	 }];
+	          block(obj);
+		  }];
 }
 
 
 // corner case: block literal in use with return type
 id longLines = [allLines collect: ^ BOOL (id item) {
-                    return [item length] > 20;
-				}];
+                             return [item length] > 20;
+						 }];
 
 // corner case: block literal in use with return type
 id longLines = [allLines collect: ^ BOOL* (id item) {
-                    return [item length] > 20;
-				}];
+                             return [item length] > 20;
+						 }];
 
 @end
 

@@ -1271,6 +1271,22 @@ void indent_text(void)
                        __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
                frm.pop(__func__, __LINE__);
             }
+
+            // Pop Colon stack in ternary operator
+            if (  (frm.top().type == CT_OC_MSG_FUNC || frm.top().type == CT_OC_MSG_NAME)
+               && (  chunk_is_semicolon(pc)
+                  || chunk_is_token(pc, CT_COND_COLON)
+                  || chunk_is_token(pc, CT_COMMA)
+                  || chunk_is_token(pc, CT_OC_MSG_NAME)
+                  || chunk_is_token(pc, CT_BRACE_CLOSE)
+                  || chunk_is_token(pc, CT_PAREN_CLOSE)
+                  || chunk_is_token(pc, CT_SPAREN_CLOSE))
+               && pc->parent_type != CT_CPP_LAMBDA)
+            {
+               LOG_FMT(LINDLINE, "%s(%d): pc->orig_line is %zu, orig_col is %zu, text() is '%s', type is %s\n",
+                       __func__, __LINE__, pc->orig_line, pc->orig_col, pc->text(), get_token_name(pc->type));
+               frm.pop(__func__, __LINE__);
+            }
          }
       } while (old_frm_size > frm.size());
 
@@ -2372,6 +2388,25 @@ void indent_text(void)
             }
             frm.top().indent_tab = frm.top().indent;
          }
+         else if (  language_is_set(LANG_OC)
+                 && options::indent_oc_inside_msg_sel()
+                 && chunk_is_token(pc, CT_PAREN_OPEN)
+                 && chunk_is_token(chunk_get_prev_ncnl(pc), CT_OC_COLON)
+                 && frm.size() > 2
+                 && (frm.prev().type == CT_OC_MSG_FUNC || frm.prev().type == CT_OC_MSG_NAME)
+                 && !options::indent_align_paren())
+         {
+            // When parens are inside OC messages, push on the parse frame stack
+            log_rule_B("indent_align_paren");
+
+            frm.top().indent     = frm.top().indent + indent_size;
+            frm.top().indent_tab = frm.top().indent_tab;
+            log_indent();
+
+            frm.top().indent_tmp = frm.top().indent;
+            log_indent_tmp();
+            skipped = true;
+         }
          else if (  chunk_is_token(pc, CT_PAREN_OPEN)
                  && !chunk_is_newline(chunk_get_next(pc))
                  && !options::indent_align_paren()
@@ -2911,6 +2946,28 @@ void indent_text(void)
          frm.top().indent_tmp = frm.top().indent;
          log_indent_tmp();
       }
+      else if (  language_is_set(LANG_OC)
+              && options::indent_oc_inside_msg_sel()
+              && (chunk_is_token(pc, CT_OC_MSG_FUNC) || chunk_is_token(pc, CT_OC_MSG_NAME))
+              && chunk_is_token(chunk_get_next_ncnl(pc), CT_OC_COLON))
+      {
+         // Pop the OC msg name that is on the top of the stack
+         if (  frm.top().type == CT_OC_MSG_FUNC
+            || frm.top().type == CT_OC_MSG_NAME)
+         {
+            frm.pop(__func__, __LINE__);
+            indent_column_set(frm.top().indent);
+         }
+         // [Class firstSelector<here>:arg1
+         //             secondSelector:arg2];
+         frm.push(pc, __func__, __LINE__);
+
+         frm.top().indent     = pc->column;
+         frm.top().indent_tab = frm.prev().indent_tab;
+         log_indent();
+         frm.top().indent_tmp = frm.top().indent;
+         log_indent_tmp();
+      }
       else
       {
          // anything else?
@@ -3300,13 +3357,23 @@ void indent_text(void)
                         {
                            LOG_FMT(LINDLINE, "%s(%d):\n", __func__, __LINE__);
                            search = chunk_skip_to_match_rev(search);
-                           search = chunk_get_next(chunk_get_prev_nl(search));
 
-                           if (search == nullptr)
+                           if (  options::indent_oc_inside_msg_sel()
+                              && chunk_is_token(chunk_get_prev_ncnl(search), CT_OC_COLON)
+                              && (frm.top().type == CT_OC_MSG_FUNC || frm.top().type == CT_OC_MSG_NAME))
                            {
-                              search = chunk_get_head();
+                              indent_column_set(frm.top().indent);
                            }
-                           indent_column_set(search->column);
+                           else
+                           {
+                              search = chunk_get_next(chunk_get_prev_nl(search));
+
+                              if (search == nullptr)
+                              {
+                                 search = chunk_get_head();
+                              }
+                              indent_column_set(search->column);
+                           }
                         }
                      }
                   }
