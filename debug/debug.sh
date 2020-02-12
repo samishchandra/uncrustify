@@ -4,7 +4,7 @@ UNCRUSTIFY=/Users/samishkolli/src/uncrustify
 
 $UNCRUSTIFY/build/debug/uncrustify \
 -c /Users/samishkolli/src/homebrew/archive/uncrustify/uncrustify.cfg \
--L 0 \
+-L 22 \
 -p $UNCRUSTIFY/debug/debug_info.txt \
 -f $UNCRUSTIFY/debug/test_file.mm \
 -o $UNCRUSTIFY/debug/test_file_formatted.mm \

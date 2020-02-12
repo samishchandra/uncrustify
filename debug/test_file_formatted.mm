@@ -5,11 +5,11 @@ void Events2(NSString *identifier, void (^)());
 
 // Indentation in OC message
 [ViewController preFirst:(
-  pre_1_arg
+                          pre_1_arg
  )];
 
 [ViewController firstSelectorOne:arg1 preFirst:(
-  pre_1_arg
+                                                pre_1_arg
  )];
 
 [ViewController preFirst:^{
@@ -22,47 +22,47 @@ void Events2(NSString *identifier, void (^)());
 }];
 
 [ViewController firstSelectorOne:(flag
-  ? arg5_1
-  : arg5_2
+                                  ? arg5_1
+                                  : arg5_2
  ) toolbox:_toolbox];
 
 [ViewController preFirst:(
-  pre_1_arg
-)
+                          pre_1_arg
+                )
         firstSelectorOne:
  arg1
             selector_two:(
-   arg2
+                          arg2
             )
               Selector_3:{
-   .arg3 = 1
- }
+                .arg3 = 1
+              }
          fourth_Selector:^{
            return arg4;
          }
        selector_number_5:(flag
-   ? arg5_1
-   : arg5_2
+                          ? arg5_1
+                          : arg5_2
        )
        selector_number_5:(flag
-   ? arg5_1
-   : arg5_2
+                          ? arg5_1
+                          : arg5_2
        )
                   sixSel:(flag
-   ?: arg6_1)
+                          ?: arg6_1)
         seventh_selector:(
-   arg7
+                          arg7
         )
               toolboxSel:toolboxArg];
 
 // Ternary operator
 [[ViewController alloc] strategy:(strategy
-  ? [QuestionMarkStmt new]
-  : [ColonStmt new])
+                                  ? [QuestionMarkStmt new]
+                                  : [ColonStmt new])
                          toolbox:_one];
 
 [[ViewController alloc] strategy:(strategy
-  ?: [SourceStrategy new])
+                                  ?: [SourceStrategy new])
                          toolbox:_two];
 
 // Blocks in method calls
@@ -808,8 +808,8 @@ static std::vector<AKFBCmpntChild> FBChildren()
     {
       [MSGKeyframesCmpnt
        mutator:((props.variant.get().assetMutatorBuilder != nil)
-         ? props.variant.get().assetMutatorBuilder(props.backgroundStyle, traitCollection)
-         : nil)],
+                ? props.variant.get().assetMutatorBuilder(props.backgroundStyle, traitCollection)
+                : nil)],
     },
   };
 
