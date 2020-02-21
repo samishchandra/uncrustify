@@ -1106,6 +1106,10 @@ void indent_text(void)
                   || chunk_is_token(pc, CT_OC_END)
                   || chunk_is_token(pc, CT_OC_SCOPE)
                   || chunk_is_token(pc, CT_OC_PROPERTY)
+                  || chunk_is_token(pc, CT_TYPEDEF)
+                  || chunk_is_token(pc, CT_MACRO_OPEN)
+                  || chunk_is_token(pc, CT_MACRO_CLOSE)
+                  || (chunk_is_token(pc, CT_COMMENT_CPP) && get_chunk_parent_type(pc) == CT_COMMENT_WHOLE)
                   || chunk_is_semicolon(pc)))
             {
                LOG_FMT(LINDLINE, "%s(%d): pc->orig_line is %zu, orig_col is %zu, text() is '%s', type is %s\n",
