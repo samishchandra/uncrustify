@@ -1,4 +1,48 @@
-// typedef and macro indentation 
+// Import sorting
+#import "FDSFailedLoadingState.h"
+
+
+#import <Foundation/Foundation.h>
+#include <vector>
+
+#include <ModuleA/FileA.h>
+#import "FDSBottomSheetOptions.h"
+
+
+#import "test_file+internal.h"
+
+#import <AFFoundation/AFFoundation.h>
+#import "test_file+settings.h"
+
+
+#import <FBDefines/FBDefines.h>
+
+#import "ModuleA"
+#include "ZFile.h"
+
+#include "AFile.h"
+#import "FDSBottomSheetActionCellProps.h"
+
+
+
+#include "ModuleA"
+#import <ModuleA>
+
+#import "test_file.h"
+#include <AddressBook/AddressBook.h>
+#import <ModuleA/FileA.h>
+#include <ModuleA>
+
+#import <Something>
+
+#import "ABC.h"
+
+#import <UIKit/UIKit.h>
+
+#import "KFAction.h"
+
+
+// typedef and macro indentation
 @interface Example : NSObject
   typedef ObjectType0 X;
 typedef ObjectType1 _Nullable (^Handler1)(id<Fragment> fragment);

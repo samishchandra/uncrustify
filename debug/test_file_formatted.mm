@@ -1,3 +1,33 @@
+// Import sorting
+#import "test_file.h"
+#import "test_file+internal.h"
+#import "test_file+settings.h"
+
+#import <ModuleA>
+#include <ModuleA>
+#import <Something>
+#include <vector>
+
+#include <AddressBook/AddressBook.h>
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+#import <AFFoundation/AFFoundation.h>
+#import <FBDefines/FBDefines.h>
+#include <ModuleA/FileA.h>
+#import <ModuleA/FileA.h>
+
+#include "ModuleA"
+#import "ModuleA"
+
+#import "ABC.h"
+#include "AFile.h"
+#import "FDSBottomSheetActionCellProps.h"
+#import "FDSBottomSheetOptions.h"
+#import "FDSFailedLoadingState.h"
+#import "KFAction.h"
+#include "ZFile.h"
+
 // typedef and macro indentation
 @interface Example : NSObject
 typedef ObjectType0 X;
