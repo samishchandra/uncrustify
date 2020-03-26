@@ -10,12 +10,35 @@
 
 #include "chunk_list.h"
 #include "log_rules.h"
+#include "newlines.h"
 #include "prototypes.h"
 
 #include <regex>
 
 using namespace uncrustify;
 
+static log_sev_t LOG_LEVEL = LSORT;
+static void _ksc_log(const char *func, const uint32_t line, const char *tag, const chunk_t *pc = nullptr)
+{
+  if (pc == nullptr) {
+    LOG_FMT(LOG_LEVEL, "KSC: [%s] %s(%d)\n", tag, func, line);
+    return;
+  }
+
+  LOG_FMT(LOG_LEVEL, "KSC: [%s] %s(%d): \n\
+          pc->text=\"%s\", pc->type=%s, pc->parent_type=%s, pc->len=%zu \n\
+          pc->orig_line=%zu, pc->orig_col=%zu, pc->level=%zu, \n\
+          pc->col=%zu, pc->col_indent=%zu\n",
+          tag, func, line,
+          pc->text(), get_token_name(pc->type), get_token_name(pc->parent_type), pc->len(),
+          pc->orig_line, pc->orig_col, pc->level,
+          pc->column, pc->column_indent);
+}
+
+#define ksc_log() LOG_FMT(LOG_LEVEL, "\n==============================\n")
+#define ksc_log_tag(tag) _ksc_log(__func__, __LINE__, tag)
+#define ksc_log_pc(pc) _ksc_log(__func__, __LINE__, "DEBUG", pc)
+#define ksc_log_tag_pc(tag, pc) _ksc_log(__func__, __LINE__, tag, pc)
 
 Option<std::string>  *include_category_options[] =
 {
@@ -58,6 +81,22 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2, bool tcare = false);
  * So, we do a min sort.
  */
 static void do_the_sort(chunk_t **chunks, size_t num_chunks);
+
+
+#define MARK_CHANGE()    mark_change(__func__, __LINE__)
+
+
+static void mark_change(const char *func, size_t line)
+{
+   LOG_FUNC_ENTRY();
+   cpd.changes++;
+
+   if (cpd.pass_count == 0)
+   {
+      LOG_FMT(LCHANGE, "%s(%d): change %d on %s:%zu\n",
+              __func__, __LINE__, cpd.changes, func, line);
+   }
+}
 
 
 static void prepare_categories()
@@ -109,11 +148,57 @@ static int get_chunk_priority(chunk_t *pc)
 }
 
 
+/**
+ * Get source filename without extension.
+ */
+std::string get_filename_without_ext()
+{
+  std::string filepath = cpd.filename;
+  size_t slash_idx = filepath.find_last_of("/\\");
+  if (slash_idx == std::string::npos || slash_idx >= (filepath.size() - 1))
+  {
+    return(filepath);
+  }
+
+  std::string filename = filepath.substr(slash_idx + 1);
+  size_t dot_idx = filename.find_last_of('.');
+  return(filename.substr(0, dot_idx));
+}
+
+
+/**
+ * Returns true if unc_text has "." which implies extension.
+ */
+static bool has_dot(const unc_text &chunk_text)
+{
+  int idx = chunk_text.rfind(".", chunk_text.size() - 1);
+  return(idx != -1);
+}
+
+/**
+ * Get chunk text without the extension.
+ */
+static unc_text get_text_without_ext(const unc_text &chunk_text)
+{
+  unc_text result = chunk_text;
+  int idx = result.rfind(".", result.size() - 1);
+  if (idx == -1)
+  {
+    return(result);
+  }
+
+  result.erase(idx, result.size() - idx);
+  return(result);
+}
+
+/**
+ * Returns chunk string required for sorting.
+ */
 static unc_text chunk_sort_str(chunk_t *pc)
 {
    if (get_chunk_parent_type(pc) == CT_PP_INCLUDE)
    {
-      return(unc_text{ pc->str, 0, pc->len() - 1 });
+     return(unc_text{ pc->str, 0, pc->len() - 1 });
    }
    return(pc->str);
 }
@@ -133,10 +218,57 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2, bool tcare)
       return(0);
    }
 
+   const char *filename = get_filename_without_ext().c_str();
+
    while (pc1 != nullptr && pc2 != nullptr)
    {
+      auto const &s1_ext     = chunk_sort_str(pc1);
+      auto const &s2_ext     = chunk_sort_str(pc2);
+
+      // TODO: (samishkolli) Check for mod_sort_include_ignore_extension config
+      auto const &s1 = get_text_without_ext(s1_ext);
+      auto const &s2 = get_text_without_ext(s2_ext);
+
+      // TODO: (samishkolli) Check for mod_sort_include_prioritize_filename
+      int s1_contains_filename = s1.find(filename);
+      int s2_contains_filename = s2.find(filename);
+
+      if (s1_contains_filename != -1 && s2_contains_filename == -1)
+      {
+         return(-1);
+      }
+      else if (s1_contains_filename == -1 && s2_contains_filename != -1)
+      {
+         return(1);
+      }
+
+      // TODO: (samishkolli) Check for mod_sort_include_prioritize_angle_over_quotes
+      if (s1.startswith("<") && s2.startswith("\""))
+      {
+         return(-1);
+      }
+      else if (s1.startswith("\"") && s2.startswith("<"))
+      {
+         return(1);
+      }
+
+      // TODO: (samishkolli) Check for mod_sort_include_prioritize_modules
+      const bool s1_has_dot = has_dot(s1_ext);
+      const bool s2_has_dot = has_dot(s2_ext);
+      if (s1_has_dot && !s2_has_dot)
+      {
+         return(1);
+      }
+      else if (!s1_has_dot && s2_has_dot)
+      {
+         return(-1);
+      }
+
       int ppc1 = get_chunk_priority(pc1);
       int ppc2 = get_chunk_priority(pc2);
+
+     LOG_FMT(LSORT, "%s(%d): ppc1:%d\n", __func__, __LINE__, ppc1);
+     LOG_FMT(LSORT, "%s(%d): ppc2:%d\n", __func__, __LINE__, ppc2);
 
       if (ppc1 != ppc2)
       {
@@ -146,8 +278,7 @@ static int compare_chunks(chunk_t *pc1, chunk_t *pc2, bool tcare)
               __func__, __LINE__, pc1->text(), pc1->len(), pc1->orig_line, pc1->orig_col);
       LOG_FMT(LSORT, "%s(%d): text is %s, pc2->len is %zu, line is %zu, column is %zu\n",
               __func__, __LINE__, pc2->text(), pc2->len(), pc2->orig_line, pc2->orig_col);
-      auto const &s1     = chunk_sort_str(pc1);
-      auto const &s2     = chunk_sort_str(pc2);
+
       int        ret_val = unc_text::compare(s1, s2, std::min(s1.size(), s2.size()), tcare);
       LOG_FMT(LSORT, "%s(%d): ret_val is %d\n",
               __func__, __LINE__, ret_val);
@@ -253,13 +384,224 @@ static void do_the_sort(chunk_t **chunks, size_t num_chunks)
          chunk_swap_lines(chunks[start_idx], chunks[min_idx]);
 
          // Don't need to swap, since we only want the side-effects
+         chunk_t *pc = chunks[min_idx];
          chunks[min_idx] = chunks[start_idx];
+         chunks[start_idx] = pc;
       }
    }
 } // do_the_sort
 
 
+/**
+ * Remove blank lines between chunks.
+ */
+static void remove_blank_lines_between_imports(chunk_t **chunks, size_t num_chunks)
+{
+  LOG_FUNC_ENTRY();
+  if (num_chunks < 2)
+  {
+    return;
+  }
+
+  for (size_t idx = 0; idx < (num_chunks - 1); idx++)
+  {
+    chunk_t *chunk1 = chunk_get_next_nl(chunks[idx]);
+    chunk1->nl_count = 1;
+    MARK_CHANGE();
+  }
+}
+
+
+/**
+ * Group imports.
+ */
+static void group_imports_by_adding_newlines(chunk_t **chunks, size_t num_chunks)
+{
+  LOG_FUNC_ENTRY();
+
+  // Group imports based on first character
+  int c_idx = -1;
+  int c_idx_last = -1;
+  for (size_t idx = 0; idx < num_chunks; idx++)
+  {
+    if (chunks[idx]->str.size() > 0) {
+      c_idx = chunks[idx]->str.at(0);
+    }
+    else
+    {
+      c_idx = -1;
+    }
+
+    if (c_idx_last != c_idx && idx > 0)
+    {
+      chunk_t *newline = newline_add_before(chunk_first_on_line(chunks[idx]));
+      if (newline->nl_count < 2)
+      {
+        double_newline(newline);
+      }
+    }
+    c_idx_last = c_idx;
+  }
+
+  // Group imports based on module or not
+  bool chunk_has_dot = false;
+  bool chunk_last_has_dot = false;
+  for (size_t idx = 0; idx < num_chunks; idx++)
+  {
+    chunk_has_dot = has_dot(chunks[idx]->str);
+    if (chunk_last_has_dot != chunk_has_dot && idx > 0)
+    {
+      chunk_t *newline = newline_add_before(chunk_first_on_line(chunks[idx]));
+      if (newline->nl_count < 2)
+      {
+        double_newline(newline);
+      }
+    }
+    chunk_last_has_dot = chunk_has_dot;
+  }
+
+  // Group imports based on priority defined by config
+  int chunk_pri = -1;
+  int chunk_pri_last = -1;
+  for (size_t idx = 0; idx < num_chunks; idx++)
+  {
+    chunk_pri = get_chunk_priority(chunks[idx]);
+    if (chunk_pri_last != chunk_pri && idx > 0)
+    {
+      chunk_t *newline = newline_add_before(chunk_first_on_line(chunks[idx]));
+      if (newline->nl_count < 2)
+      {
+        double_newline(newline);
+      }
+    }
+    chunk_pri_last = chunk_pri;
+  }
+
+  // Group imports that contains the filename
+  bool chunk_has_filename = false;
+  bool last_chunk_has_filename = false;
+  const char *filename = get_filename_without_ext().c_str();
+  for (size_t idx = 0; idx < num_chunks; idx++)
+  {
+    auto const &chunk_text = chunk_sort_str(chunks[idx]);
+    chunk_has_filename = !(chunk_text.find(filename) == -1);
+
+    if (!chunk_has_filename && last_chunk_has_filename)
+    {
+      chunk_t *newline = newline_add_before(chunk_first_on_line(chunks[idx]));
+      if (newline->nl_count < 2)
+      {
+        double_newline(newline);
+      }
+    }
+    last_chunk_has_filename = chunk_has_filename;
+  }
+}
+
 void sort_imports(void)
+{
+  ksc_log();
+   LOG_FUNC_ENTRY();
+   chunk_t *chunks[MAX_NUMBER_TO_SORT];  // MAX_NUMBER_TO_SORT should be enough, right?
+   size_t  num_chunks  = 0;
+   chunk_t *p_last     = nullptr;
+   chunk_t *p_imp      = nullptr;
+   chunk_t *p_imp_last = nullptr;
+
+   prepare_categories();
+
+   chunk_t *pc = chunk_get_head();
+
+   while (pc != nullptr)
+   {
+      if (p_imp_last != nullptr && pc->orig_line - p_imp_last->orig_line > MAX_LINES_TO_CHECK_AFTER_INCLUDE)
+      {
+        break;
+      }
+
+      chunk_t *next = chunk_get_next(pc);
+
+      if (chunk_is_newline(pc))
+      {
+         bool did_import = false;
+
+         if (  p_imp != nullptr
+            && (  chunk_is_token(p_last, CT_SEMICOLON)
+               || p_imp->flags.test(PCF_IN_PREPROC)))
+         {
+            if (num_chunks < MAX_NUMBER_TO_SORT)
+            {
+               LOG_FMT(LSORT, "%s(%d): p_imp is %s\n",
+                       __func__, __LINE__, p_imp->text());
+               chunks[num_chunks++] = p_imp;
+            }
+            else
+            {
+               fprintf(stderr, "Number of 'import' to be sorted is too big for the current value %d.\n", MAX_NUMBER_TO_SORT);
+               fprintf(stderr, "Please make a report.\n");
+               log_flush(true);
+               cpd.error_count++;
+               exit(2);
+            }
+            did_import = true;
+         }
+
+         if (  !did_import
+            || ( p_imp_last != nullptr
+                 && pc->orig_line - p_imp_last->orig_line > MAX_GAP_THRESHOLD_BETWEEN_INCLUDE)
+            || next == nullptr)
+         {
+            if (num_chunks > 1)
+            {
+               remove_blank_lines_between_imports(chunks, num_chunks);
+               do_the_sort(chunks, num_chunks);
+               group_imports_by_adding_newlines(chunks, num_chunks);
+            }
+            num_chunks = 0;
+         }
+
+         p_imp_last = p_imp;
+         p_imp  = nullptr;
+         p_last = nullptr;
+      }
+      else if (chunk_is_token(pc, CT_IMPORT))
+      {
+         log_rule_B("mod_sort_import");
+
+         if (options::mod_sort_import())
+         {
+            p_imp = chunk_get_next(pc);
+         }
+      }
+      else if (chunk_is_token(pc, CT_USING))
+      {
+         log_rule_B("mod_sort_using");
+
+         if (options::mod_sort_using())
+         {
+            p_imp = chunk_get_next(pc);
+         }
+      }
+      else if (chunk_is_token(pc, CT_PP_INCLUDE))
+      {
+         log_rule_B("mod_sort_include");
+
+         if (options::mod_sort_include())
+         {
+            p_imp  = chunk_get_next(pc);
+            p_last = pc;
+         }
+      }
+      else if (!chunk_is_comment(pc))
+      {
+        p_last = pc;
+      }
+      pc = next;
+   }
+   cleanup_categories();
+} // sort_imports
+
+void sort_imports1(void)
 {
    LOG_FUNC_ENTRY();
    chunk_t *chunks[MAX_NUMBER_TO_SORT];  // MAX_NUMBER_TO_SORT should be enough, right?
